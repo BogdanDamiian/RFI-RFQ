@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏭 Sélection Fournisseurs - Matières Premières</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            border-left: 5px solid #3498db;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .input-group input, .input-group select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            min-width: 900px;
+        }
+
+        th {
+            background: #34495e;
+            color: white;
+            padding: 15px 10px;
+            font-weight: 600;
+            text-align: center;
+            border: 1px solid #2c3e50;
+        }
+
+        td {
+            padding: 12px 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .criteria-cell {
+            background: #ecf0f1;
+            font-weight: 600;
+            text-align: left;
+            padding-left: 15px;
+        }
+
+        .criteria-name-input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-weight: 600;
+            background: #ecf0f1;
+        }
+
+        .weight-cell {
+            background: #fff3cd;
+        }
+
+        .score-cell {
+            background: #d1ecf1;
+        }
+
+        .total-row {
+            background: #d4edda;
+            font-weight: bold;
+        }
+
+        .rank-row {
+            background: #c3e6cb;
+            font-weight: bold;
+        }
+
+        .supplier-input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid rgba(255,255,255,0.5);
+            color: white;
+            text-align: center;
+            padding: 5px;
+            font-weight: bold;
+        }
+
+        .supplier-input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .weight-input, .score-select {
+            width: 80px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-align: center;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 3px solid;
+            transition: transform 0.3s;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .result-card.first { border-color: #f39c12; background: #fff3cd; }
+        .result-card.second { border-color: #3498db; background: #d1ecf1; }
+        .result-card.third { border-color: #e74c3c; background: #f8d7da; }
+        .result-card.other { border-color: #95a5a6; background: #f8f9fa; }
+
+        .result-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .result-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .result-score {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary { background: #3498db; color: white; }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-warning { background: #f39c12; color: white; }
+        .btn-danger { background: #e74c3c; color: white; }
+        .btn-purple { background: #8e44ad; color: white; }
+        .btn-orange { background: #e67e22; color: white; }
+        .btn-gray { background: #95a5a6; color: white; }
+
+        .small-btn {
+            padding: 8px 16px;
+            font-size: 14px;
+            margin: 5px;
+        }
+
+        .recommendation-box {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .recommendation-box h3 {
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .recommendation-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .weight-warning {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .weight-ok {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+            
+            .button-group {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+
+            table {
+                min-width: 700px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏭 Sélection Fournisseurs - Matières Premières</h1>
+            <p>Système d'évaluation et de sélection des fournisseurs de matières premières</p>
+        </div>
+
+        <div class="content">
+            <!-- Project Configuration -->
+            <div class="section">
+                <h2>📋 Configuration du Projet</h2>
+                <div class="config-grid">
+                    <div class="input-group">
+                        <label for="projectName">Nom du Projet :</label>
+                        <input type="text" id="projectName" value="Machine de Recyclage d'Eau - Industrielle/Commerciale">
+                    </div>
+                    <div class="input-group">
+                        <label for="certification">Certification Requise :</label>
+                        <input type="text" id="certification" value="Marquage CE">
+                    </div>
+                    <div class="input-group">
+                        <label for="geography">Préférence Géographique :</label>
+                        <select id="geography">
+                            <option value="France/UE Priorité" selected>France/UE Priorité</option>
+                            <option value="Global">Global</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="evalDate">Date d'Évaluation :</label>
+                        <input type="date" id="evalDate">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Summary -->
+            <div class="section">
+                <h2>📊 Résultats de l'Évaluation</h2>
+                <div id="weightCheck" class="weight-ok">Vérification Pondérations : 100% ✅</div>
+                <div class="results-grid" id="resultsGrid">
+                    <!-- Results will be populated by JavaScript -->
+                </div>
+                <div class="recommendation-box">
+                    <h3>🎯 Recommandation Finale</h3>
+                    <div class="recommendation-text" id="recommendationText">
+                        Le fournisseur recommandé sera affiché ici après la completion de l'évaluation
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evaluation Matrix -->
+            <div class="section">
+                <h2>⚖️ Matrice d'Évaluation</h2>
+                <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-purple small-btn" onclick="ajouterCritere()">➕ Ajouter Critère</button>
+                    <button class="btn btn-orange small-btn" onclick="ajouterFournisseur()">👥 Ajouter Fournisseur</button>
+                    <button class="btn btn-gray small-btn" onclick="reinitialiserCriteres()">🔄 Réinitialiser Critères</button>
+                </div>
+                <div class="table-container">
+                    <table id="evaluationTable">
+                        <thead>
+                            <tr id="tableHeader">
+                                <!-- Headers will be populated by JavaScript -->
+                            </tr>
+                        </thead>
+                        <tbody id="evaluationBody">
+                            <!-- Evaluation rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="button-group">
+                <button class="btn btn-success" onclick="sauvegarderProjet()">💾 Sauvegarder le Projet</button>
+                <button class="btn btn-primary" onclick="chargerProjet()">📂 Charger le Projet</button>
+                <button class="btn btn-warning" onclick="exporterVersExcel()">📊 Exporter vers Excel</button>
+                <button class="btn btn-danger" onclick="imprimerRapport()">🖨️ Imprimer le Rapport</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Application data
+        var donneesApp = {
+            criteres: [
+                { nom: "💰 COMPÉTITIVITÉ PRIX", poids: 25 },
+                { nom: "🎯 STANDARDS QUALITÉ", poids: 20 },
+                { nom: "🚚 FIABILITÉ LIVRAISON", poids: 15 },
+                { nom: "🔧 CAPACITÉ TECHNIQUE", poids: 15 },
+                { nom: "📍 PROXIMITÉ GÉOGRAPHIQUE", poids: 10 },
+                { nom: "💼 STABILITÉ FINANCIÈRE", poids: 10 },
+                { nom: "🌱 CONFORMITÉ ENVIRONNEMENTALE", poids: 5 }
+            ],
+            fournisseurs: ["FOURNISSEUR A", "FOURNISSEUR B", "FOURNISSEUR C", "FOURNISSEUR D", "FOURNISSEUR E"],
+            scores: [
+                [5, 4, 5, 4, 5, 4, 4], // Fournisseur A
+                [4, 5, 4, 5, 5, 5, 5], // Fournisseur B
+                [3, 3, 2, 3, 3, 3, 3], // Fournisseur C
+                [2, 4, 4, 4, 5, 4, 5], // Fournisseur D
+                [1, 3, 3, 2, 2, 3, 3]  // Fournisseur E
+            ]
+        };
+
+        // Initialize the application
+        function initialiserApp() {
+            document.getElementById('evalDate').value = new Date().toISOString().split('T')[0];
+            creerTableauEvaluation();
+            calculerResultats();
+        }
+
+        // Create the evaluation table
+        function creerTableauEvaluation() {
+            var enTete = document.getElementById('tableHeader');
+            var corps = document.getElementById('evaluationBody');
+            
+            // Clear existing content
+            enTete.innerHTML = '';
+            corps.innerHTML = '';
+
+            // Build header
+            var html = '<th style="width: 300px;">Critères d\'Évaluation</th>';
+            html += '<th style="width: 120px;">Pondération (%)</th>';
+            
+            for (var i = 0; i < donneesApp.fournisseurs.length; i++) {
+                html += '<th style="width: 150px;">';
+                html += '<input type="text" class="supplier-input" value="' + donneesApp.fournisseurs[i] + '" ';
+                html += 'onchange="modifierNomFournisseur(' + i + ', this.value)">';
+                html += '</th>';
+            }
+            enTete.innerHTML = html;
+
+            // Add criteria rows
+            for (var j = 0; j < donneesApp.criteres.length; j++) {
+                var ligne = document.createElement('tr');
+                var htmlLigne = '';
+                
+                // Criterion name (editable)
+                htmlLigne += '<td class="criteria-cell">';
+                htmlLigne += '<input type="text" class="criteria-name-input" value="' + donneesApp.criteres[j].nom + '" ';
+                htmlLigne += 'onchange="modifierNomCritere(' + j + ', this.value)">';
+                htmlLigne += '</td>';
+                
+                // Weight
+                htmlLigne += '<td class="weight-cell">';
+                htmlLigne += '<input type="number" class="weight-input" value="' + donneesApp.criteres[j].poids + '" ';
+                htmlLigne += 'min="0" max="100" onchange="modifierPoids(' + j + ', this.value)">';
+                htmlLigne += '</td>';
+                
+                // Scores for each supplier
+                for (var k = 0; k < donneesApp.fournisseurs.length; k++) {
+                    htmlLigne += '<td class="score-cell">';
+                    htmlLigne += '<select class="score-select" onchange="modifierScore(' + k + ', ' + j + ', this.value)">';
+                    
+                    for (var s = 5; s >= 1; s--) {
+                        var selectionne = donneesApp.scores[k][j] === s ? ' selected' : '';
+                        var texteScore = s === 5 ? '5-Excellent' : s === 4 ? '4-Bon' : s === 3 ? '3-Moyen' : s === 2 ? '2-Insuffisant' : '1-Faible';
+                        htmlLigne += '<option value="' + s + '"' + selectionne + '>' + texteScore + '</option>';
+                    }
+                    htmlLigne += '</select></td>';
+                }
+                
+                ligne.innerHTML = htmlLigne;
+                corps.appendChild(ligne);
+            }
+
+            // Add total scores row
+            var ligneTotale = document.createElement('tr');
+            ligneTotale.className = 'total-row';
+            var htmlTotal = '<td>SCORE TOTAL PONDÉRÉ</td><td>MAX: 500</td>';
+            for (var l = 0; l < donneesApp.fournisseurs.length; l++) {
+                htmlTotal += '<td id="scoreTotal' + l + '">0</td>';
+            }
+            ligneTotale.innerHTML = htmlTotal;
+            corps.appendChild(ligneTotale);
+
+            // Add ranking row
+            var ligneClassement = document.createElement('tr');
+            ligneClassement.className = 'rank-row';
+            var htmlClassement = '<td>CLASSEMENT</td><td>-</td>';
+            for (var m = 0; m < donneesApp.fournisseurs.length; m++) {
+                htmlClassement += '<td id="classement' + m + '">-</td>';
+            }
+            ligneClassement.innerHTML = htmlClassement;
+            corps.appendChild(ligneClassement);
+        }
+
+        // Update functions
+        function modifierNomCritere(index, nouveauNom) {
+            donneesApp.criteres[index].nom = nouveauNom;
+        }
+
+        function modifierNomFournisseur(index, nouveauNom) {
+            donneesApp.fournisseurs[index] = nouveauNom;
+            calculerResultats();
+        }
+
+        function modifierPoids(index, nouveauPoids) {
+            donneesApp.criteres[index].poids = parseInt(nouveauPoids) || 0;
+            calculerResultats();
+        }
+
+        function modifierScore(indexFournisseur, indexCritere, nouveauScore) {
+            donneesApp.scores[indexFournisseur][indexCritere] = parseInt(nouveauScore);
+            calculerResultats();
+        }
+
+        // Add criterion function
+        function ajouterCritere() {
+            var nouveauNom = prompt("Nom du nouveau critère :", "🔍 NOUVEAU CRITÈRE");
+            if (nouveauNom && nouveauNom.trim()) {
+                var nouveauPoids = parseInt(prompt("Pondération (%) :", "5")) || 5;
+                
+                donneesApp.criteres.push({
+                    nom: nouveauNom.trim(),
+                    poids: nouveauPoids
+                });
+                
+                // Add default scores for all suppliers
+                for (var i = 0; i < donneesApp.scores.length; i++) {
+                    donneesApp.scores[i].push(3);
+                }
+                
+                creerTableauEvaluation();
+                calculerResultats();
+            }
+        }
+
+        // Add supplier function
+        function ajouterFournisseur() {
+            var nouveauNom = prompt("Nom du nouveau fournisseur :", "FOURNISSEUR " + String.fromCharCode(65 + donneesApp.fournisseurs.length));
+            if (nouveauNom && nouveauNom.trim()) {
+                donneesApp.fournisseurs.push(nouveauNom.trim());
+                
+                // Add default scores for all criteria
+                var nouveauxScores = [];
+                for (var i = 0; i < donneesApp.criteres.length; i++) {
+                    nouveauxScores.push(3);
+                }
+                donneesApp.scores.push(nouveauxScores);
+                
+                creerTableauEvaluation();
+                calculerResultats();
+            }
+        }
+
+        // Reset criteria function
+        function reinitialiserCriteres() {
+            if (confirm("Réinitialiser tous les critères aux valeurs par défaut ?")) {
+                donneesApp.criteres = [
+                    { nom: "💰 COMPÉTITIVITÉ PRIX", poids: 25 },
+                    { nom: "🎯 STANDARDS QUALITÉ", poids: 20 },
+                    { nom: "🚚 FIABILITÉ LIVRAISON", poids: 15 },
+                    { nom: "🔧 CAPACITÉ TECHNIQUE", poids: 15 },
+                    { nom: "📍 PROXIMITÉ GÉOGRAPHIQUE", poids: 10 },
+                    { nom: "💼 STABILITÉ FINANCIÈRE", poids: 10 },
+                    { nom: "🌱 CONFORMITÉ ENVIRONNEMENTALE", poids: 5 }
+                ];
+                
+                // Reset scores to match criteria
+                for (var i = 0; i < donneesApp.scores.length; i++) {
+                    donneesApp.scores[i] = [4, 4, 4, 4, 4, 4, 4]; // Default scores
+                }
+                
+                creerTableauEvaluation();
+                calculerResultats();
+            }
+        }
+
+        // Calculate and display results
+        function calculerResultats() {
+            // Calculate total weights
+            var poidsTotal = 0;
+            for (var i = 0; i < donneesApp.criteres.length; i++) {
+                poidsTotal += donneesApp.criteres[i].poids;
+            }
+            
+            // Update weight check
+            var verificationPoids = document.getElementById('weightCheck');
+            if (poidsTotal === 100) {
+                verificationPoids.className = 'weight-ok';
+                verificationPoids.textContent = 'Vérification Pondérations : 100% ✅';
+            } else {
+                verificationPoids.className = 'weight-warning';
+                verificationPoids.textContent = 'Vérification Pondérations : ' + poidsTotal + '% ⚠️ (Doit être 100%)';
+            }
+
+            // Calculate supplier scores
+            var resultats = [];
+            for (var j = 0; j < donneesApp.fournisseurs.length; j++) {
+                var scoreTotal = 0;
+                
+                for (var k = 0; k < donneesApp.criteres.length; k++) {
+                    if (donneesApp.scores[j] && donneesApp.scores[j][k] !== undefined) {
+                        scoreTotal += donneesApp.scores[j][k] * donneesApp.criteres[k].poids;
+                    }
+                }
+                
+                resultats.push({
+                    nom: donneesApp.fournisseurs[j],
+                    score: scoreTotal,
+                    index: j
+                });
+            }
+
+            // Sort by score
+            resultats.sort(function(a, b) { return b.score - a.score; });
+            
+            // Update total scores in table
+            for (var l = 0; l < resultats.length; l++) {
+                var elementScore = document.getElementById('scoreTotal' + resultats[l].index);
+                if (elementScore) {
+                    elementScore.textContent = Math.round(resultats[l].score);
+                }
+            }
+
+            // Update rankings in table
+            for (var m = 0; m < resultats.length; m++) {
+                var texteClassement = m === 0 ? '1er' : m === 1 ? '2ème' : m === 2 ? '3ème' : (m + 1) + 'ème';
+                var elementClassement = document.getElementById('classement' + resultats[m].index);
+                if (elementClassement) {
+                    elementClassement.textContent = texteClassement;
+                }
+            }
+
+            // Update results grid
+            mettreAJourGrilleResultats(resultats);
+            
+            // Update recommendation
+            if (resultats.length > 0) {
+                mettreAJourRecommandation(resultats[0]);
+            }
+        }
+
+        // Update results grid
+        function mettreAJourGrilleResultats(resultats) {
+            var grille = document.getElementById('resultsGrid');
+            grille.innerHTML = '';
+
+            for (var i = 0; i < resultats.length; i++) {
+                var carte = document.createElement('div');
+                var classeCard = i === 0 ? 'first' : i === 1 ? 'second' : i === 2 ? 'third' : 'other';
+                carte.className = 'result-card ' + classeCard;
+                
+                var icone = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '📊';
+                var classement = i === 0 ? '1ère' : i === 1 ? '2ème' : i === 2 ? '3ème' : (i + 1) + 'ème';
+                
+                carte.innerHTML = '<div class="result-icon">' + icone + '</div>' +
+                                '<div class="result-name">' + resultats[i].nom + '</div>' +
+                                '<div class="result-score">' + Math.round(resultats[i].score) + '/500</div>' +
+                                '<div>' + classement + ' Place</div>';
+                
+                grille.appendChild(carte);
+            }
+        }
+
+        // Update recommendation
+        function mettreAJourRecommandation(meilleurFournisseur) {
+            var texteRecommandation = document.getElementById('recommendationText');
+            var pourcentage = Math.round((meilleurFournisseur.score / 500) * 100);
+            texteRecommandation.innerHTML = '<strong>Fournisseur Recommandé : ' + meilleurFournisseur.nom + '</strong><br>' +
+                                          'Score : ' + Math.round(meilleurFournisseur.score) + '/500 (' + pourcentage + '%)<br>' +
+                                          '<small>Prochaines étapes : Demande de devis détaillés, programmation d\'audits, négociation de contrats</small>';
+        }
+
+        // Save, load, export, print functions
+        function sauvegarderProjet() {
+            var donneesProjetes = {
+                projectName: document.getElementById('projectName').value,
+                certification: document.getElementById('certification').value,
+                geography: document.getElementById('geography').value,
+                evalDate: document.getElementById('evalDate').value,
+                criteres: donneesApp.criteres,
+                fournisseurs: donneesApp.fournisseurs,
+                scores: donneesApp.scores,
+                savedAt: new Date().toISOString()
+            };
+
+            localStorage.setItem('supplierSelectionProject', JSON.stringify(donneesProjetes));
+            alert('✅ Le projet a été sauvegardé avec succès !');
+        }
+
+        function chargerProjet() {
+            var donneesEnregistrees = localStorage.getItem('supplierSelectionProject');
+            if (donneesEnregistrees) {
+                var donneesProjetes = JSON.parse(donneesEnregistrees);
+                
+                document.getElementById('projectName').value = donneesProjetes.projectName;
+                document.getElementById('certification').value = donneesProjetes.certification;
+                document.getElementById('geography').value = donneesProjetes.geography;
+                document.getElementById('evalDate').value = donneesProjetes.evalDate;
+                
+                if (donneesProjetes.criteres) {
+                    donneesApp.criteres = donneesProjetes.criteres;
+                }
+                
+                if (donneesProjetes.fournisseurs) {
+                    donneesApp.fournisseurs = donneesProjetes.fournisseurs;
+                }
+                
+                if (donneesProjetes.scores) {
+                    donneesApp.scores = donneesProjetes.scores;
+                }
+                
+                creerTableauEvaluation();
+                calculerResultats();
+                
+                alert('📂 Le projet a été chargé avec succès !');
+            } else {
+                alert('❌ Aucun projet sauvegardé trouvé !');
+            }
+        }
+
+        function exporterVersExcel() {
+            // Simple CSV export
+            var csvData = [];
+            csvData.push(['SÉLECTION FOURNISSEURS - ANALYSE MATIÈRES PREMIÈRES']);
+            csvData.push(['Nom du Projet:', document.getElementById('projectName').value]);
+            csvData.push(['Certification:', document.getElementById('certification').value]);
+            csvData.push(['Géographie:', document.getElementById('geography').value]);
+            csvData.push(['Date d\'Évaluation:', document.getElementById('evalDate').value]);
+            csvData.push([]);
+            
+            // Calculate results for export
+            var resultats = [];
+            for (var i = 0; i < donneesApp.fournisseurs.length; i++) {
+                var scoreTotal = 0;
+                for (var j = 0; j < donneesApp.criteres.length; j++) {
+                    if (donneesApp.scores[i] && donneesApp.scores[i][j] !== undefined) {
+                        scoreTotal += donneesApp.scores[i][j] * donneesApp.criteres[j].poids;
+                    }
+                }
+                resultats.push({ nom: donneesApp.fournisseurs[i], score: scoreTotal });
+            }
+            resultats.sort(function(a, b) { return b.score - a.score; });
+            
+            // Evaluation Results
+            csvData.push(['RÉSULTATS D\'ÉVALUATION']);
+            csvData.push(['Rang', 'Fournisseur', 'Score Total', 'Pourcentage']);
+            for (var k = 0; k < resultats.length; k++) {
+                var rang = k === 0 ? '1er' : k === 1 ? '2ème' : k === 2 ? '3ème' : (k + 1) + 'ème';
+                var pourcentage = Math.round((resultats[k].score / 500) * 100);
+                csvData.push([rang, resultats[k].nom, Math.round(resultats[k].score), pourcentage + '%']);
+            }
+            csvData.push([]);
+            
+            // Detailed Scoring Matrix
+            csvData.push(['MATRICE DE NOTATION DÉTAILLÉE']);
+            var ligneEntete = ['Critères', 'Pondération (%)'];
+            for (var l = 0; l < donneesApp.fournisseurs.length; l++) {
+                ligneEntete.push(donneesApp.fournisseurs[l]);
+            }
+            csvData.push(ligneEntete);
+            
+            for (var m = 0; m < donneesApp.criteres.length; m++) {
+                var ligne = [donneesApp.criteres[m].nom, donneesApp.criteres[m].poids];
+                for (var n = 0; n < donneesApp.fournisseurs.length; n++) {
+                    var score = donneesApp.scores[n] && donneesApp.scores[n][m] !== undefined ? donneesApp.scores[n][m] : 3;
+                    ligne.push(score);
+                }
+                csvData.push(ligne);
+            }
+            
+            var poidsTotal = 0;
+            for (var o = 0; o < donneesApp.criteres.length; o++) {
+                poidsTotal += donneesApp.criteres[o].poids;
+            }
+            csvData.push(['VÉRIFICATION PONDÉRATION TOTALE', poidsTotal]);
+            csvData.push([]);
+            
+            // Recommendations
+            csvData.push(['RECOMMANDATIONS']);
+            csvData.push(['Fournisseur Recommandé:', resultats[0].nom]);
+            csvData.push(['Score:', Math.round(resultats[0].score)]);
+            csvData.push(['Second Choix:', resultats[1] ? resultats[1].nom : 'N/A']);
+            
+            // Convert to CSV and download
+            var contenuCsv = '';
+            for (var p = 0; p < csvData.length; p++) {
+                var ligne = '';
+                for (var q = 0; q < csvData[p].length; q++) {
+                    if (q > 0) ligne += ',';
+                    ligne += '"' + csvData[p][q] + '"';
+                }
+                contenuCsv += ligne + '\n';
+            }
+            
+            var blob = new Blob([contenuCsv], { type: 'text/csv;charset=utf-8;' });
+            var lien = document.createElement('a');
+            var url = URL.createObjectURL(blob);
+            lien.setAttribute('href', url);
+            lien.setAttribute('download', 'selection-fournisseurs-' + document.getElementById('evalDate').value + '.csv');
+            lien.style.visibility = 'hidden';
+            document.body.appendChild(lien);
+            lien.click();
+            document.body.removeChild(lien);
+            
+            alert('📊 Le fichier CSV a été généré et téléchargé ! Il peut être ouvert directement dans Excel.');
+        }
+
+        function imprimerRapport() {
+            window.print();
+        }
+
+        // Initialize the application when page loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initialiserApp);
+        } else {
+            initialiserApp();
+        }
+    </script>
+</body>
+</html>
